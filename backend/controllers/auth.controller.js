@@ -59,15 +59,35 @@ export const signup = async (req, res) => {
       res.status(400).json({ message: "Invalid user info" });
     }
   } catch (error) {
-    console.log(`might be some error in login function: ${error}`);
+    console.log(`might be some error in signup function: ${error}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-export const login = (req, res) => {
-  // res.json({message: "Signup Success"});
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      user?.password || ""
+    );
+    if (!user || !isPasswordCorrect) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
 
-  res.send("login Success");
+    generateToken_setCookie(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      profilePicture: user.profilePicture,
+    });
+  } catch (error) {
+    console.log(`might be some error in login function: ${error}`);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const logout = (req, res) => {
