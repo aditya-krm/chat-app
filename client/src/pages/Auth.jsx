@@ -14,7 +14,7 @@ function Auth() {
   };
 
   return (
-    <div>
+    <div className="w-full h-screen flex justify-center items-center">
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}

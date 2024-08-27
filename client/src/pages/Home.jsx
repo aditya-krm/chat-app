@@ -87,7 +87,6 @@ function Home() {
             <CardDescription>online / typing...</CardDescription>
           </CardHeader>
           <CardContent className="h-[78%] flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
-            {/* Received Message */}
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden border-2">
                 <img
@@ -104,8 +103,6 @@ function Home() {
                 minima.
               </div>
             </div>
-
-            {/* Sent Message */}
             <div className="flex items-start gap-3 justify-end">
               <div className="max-w-[75%] border-2 p-2 bg-green-900 text-white rounded-xl">
                 Sending a message ... Lorem ipsum dolor sit amet, consectetur

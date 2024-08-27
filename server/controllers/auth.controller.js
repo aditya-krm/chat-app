@@ -62,7 +62,12 @@ export const signup = async (req, res) => {
       //   gender: newUser.gender,
       //   profilePic: newUser.profilePic,
       // });
-      res.status(201).json({ message: "User registered successfully" });
+      res.status(201).json({
+        _id: newUser._id,
+        fullName: newUser.fullName,
+        username: newUser.username,
+        profilePic: newUser.profilePic,
+      });
     } else {
       res.status(400).json({ message: "User registration failed" });
     }
