@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
+import useLogin from "@/hooks/useLogin";
 
 function Login({ switchToSignup }) {
   const [form, setForm] = useState({
@@ -16,7 +16,8 @@ function Login({ switchToSignup }) {
     password: "",
   });
 
-  // Handle input changes
+  const { login, loading } = useLogin();
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
@@ -26,8 +27,7 @@ function Login({ switchToSignup }) {
   };
 
   const handleSubmit = () => {
-    // Handle form submission logic here
-    console.log("Form Data:", form);
+    login(form); // Call the login function with the form data
   };
 
   return (
@@ -69,8 +69,9 @@ function Login({ switchToSignup }) {
           variant="secondary"
           className="w-[40%] mx-auto"
           onClick={handleSubmit}
+          disabled={loading} // Disable the button while loading
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </Button>
       </CardFooter>
     </Card>

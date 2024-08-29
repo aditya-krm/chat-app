@@ -20,7 +20,7 @@ function Signup({ switchToLogin }) {
     gender: "",
   });
 
-  const { loading, signup } = useSignup();
+  const { signup } = useSignup();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
