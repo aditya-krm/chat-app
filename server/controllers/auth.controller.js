@@ -81,7 +81,7 @@ export const login = async (req, res) => {
   const { key, password } = req.body;
 
   if (!key || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
@@ -89,20 +89,26 @@ export const login = async (req, res) => {
     const user = await User.findOne(query);
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ error: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ error: "Invalid credentials" });
     }
+
     generateTokenSetCookie(user._id, res);
 
-    res.status(200).json({ message: "User logged in successfully" });
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      message: "User logged in successfully",
+    }); // Return user data if needed
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
