@@ -27,8 +27,12 @@ function Home() {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
 
   return (
-    <div className="flex w-full h-screen gap-1 pt-4 px-4">
-      <div className="w-[30%]">
+    <div className="flex w-full h-screen gap-1 md:py-4 md:px-4">
+      <div
+        className={`w-full lg:w-[30%] sm:w-full ${
+          selectedConversation ? "hidden lg:block" : "block"
+        }`}
+      >
         <ConversationList
           conversation={conversation}
           selectedConversation={selectedConversation}
@@ -37,11 +41,16 @@ function Home() {
           logout={logout}
         />
       </div>
-      <div className="w-full flex items-center justify-center">
+      <div
+        className={`w-full h-full lg:w-[70%] sm:w-full ${
+          selectedConversation ? "block" : "hidden lg:block"
+        }`}
+      >
         <MessageContainer
           conversation={conversation}
           selectedConversation={selectedConversation}
           messages={messages}
+          onBack={() => setSelectedConversation(null)}
         />
       </div>
     </div>

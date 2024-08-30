@@ -9,32 +9,27 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, ArrowLeft } from "lucide-react";
 import useConversation from "@/store/useConversation";
 import useSendMessage from "@/hooks/useSendMessage";
-import NoChat from "./NoChat";
 import useGetMessages from "@/hooks/useGetMessages";
 import { format } from "date-fns";
+import useListenMessages from "@/hooks/useListenMessages";
+import { useSocketContext } from "@/context/SocketContext"; // Import the context
 
-function MessageContainer({ conversation }) {
+function MessageContainer({ conversation, onBack }) {
   const [message, setMessage] = useState("");
   const { sendMessage } = useSendMessage();
-  const { selectedConversation, setSelectedConversation } = useConversation();
+  const { selectedConversation } = useConversation();
   const { messages, loading } = useGetMessages();
+  const { onlineUsers } = useSocketContext(); // Access the online users
 
   const currentUserId = JSON.parse(localStorage.getItem("authUser"))._id;
-
   const selectedUser = conversation.find(
     (conv) => conv._id === selectedConversation
   );
 
   const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      setSelectedConversation(null);
-    };
-  }, [setSelectedConversation]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -49,29 +44,46 @@ function MessageContainer({ conversation }) {
     setMessage("");
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit(e);
+    }
+  };
+
+  useListenMessages();
+
   const formatTime = (timestamp) => {
     return format(new Date(timestamp), "p");
   };
 
-  if (!selectedConversation) return <NoChat />;
+  if (!selectedConversation) return null;
+
+  const isOnline = onlineUsers.includes(selectedUser?._id); // Check if the user is online
 
   return (
     <Card className="h-full w-full">
-      <CardHeader className="border-b-2 h-[12%]">
-        <CardTitle>
-          {selectedUser?.fullName || "Select a Conversation"}
-        </CardTitle>
-        <CardDescription>
-          {selectedConversation ? "online / typing..." : ""}
-        </CardDescription>
+      <CardHeader className="border-b-2 h-[8%] flex flex-row space-y-0 p-2">
+        <div className="max-w-14">
+          <Button variant="ghost" className="lg:hidden mr-4" onClick={onBack}>
+            <ArrowLeft />
+          </Button>
+        </div>
+        <div>
+          <CardTitle>
+            {selectedUser?.fullName || "Select a Conversation"}
+          </CardTitle>
+          <CardDescription>
+            {isOnline ? "Online" : "Offline"} {/* Display online status */}
+          </CardDescription>
+        </div>
       </CardHeader>
-      <CardContent className="h-[78%] flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
+      <CardContent className="h-[84%] flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
         {loading && <div>Loading messages...</div>}
         {Array.isArray(messages) && messages.length > 0
           ? messages.map((msg, index) => (
               <div
                 key={index}
-                className={`p-2 rounded-lg max-w-[60%] ${
+                className={`max-w-[80%] p-2 rounded-lg lg:max-w-[60%] ${
                   msg.senderId === currentUserId
                     ? "bg-blue-500/40 self-end"
                     : "bg-green-900 self-start"
@@ -86,11 +98,12 @@ function MessageContainer({ conversation }) {
           : !loading && <div>No messages available</div>}
         <div ref={messagesEndRef} />
       </CardContent>
-      <CardFooter className="relative">
+      <CardFooter className="relative h-[8%]">
         <Input
           placeholder="Type a message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={handleKeyPress}
           className="flex-1"
         />
         <Button

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { LogOut, SearchIcon, User } from "lucide-react";
+import { useSocketContext } from "@/context/SocketContext";
 
 const ConversationList = ({
   conversation,
@@ -18,6 +19,8 @@ const ConversationList = ({
   authUser,
   logout,
 }) => {
+  const { onlineUsers } = useSocketContext();
+
   return (
     <Card className="h-full">
       <CardHeader className="h-[10%] relative">
@@ -42,28 +45,40 @@ const ConversationList = ({
         </DropdownMenu>
       </CardHeader>
       <CardContent className="h-[90%] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
-        {conversation.map((user, index) => (
-          <div
-            key={index}
-            onClick={() => setSelectedConversation(user._id)}
-            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
-              selectedConversation === user._id
-                ? "bg-gray-800"
-                : "hover:bg-gray-900"
-            }`}
-          >
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2">
-              <img
-                src={user.profilePic}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+        {conversation.map((user, index) => {
+          const isOnline = onlineUsers.includes(user._id);
+
+          return (
+            <div
+              key={index}
+              onClick={() => setSelectedConversation(user._id)}
+              className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
+                selectedConversation === user._id
+                  ? "bg-gray-800"
+                  : "hover:bg-gray-900"
+              }`}
+            >
+              <div
+                className={`relative w-10 h-10 rounded-full overflow-hidden border-2 ${
+                  isOnline ? "border-green-400" : ""
+                }`}
+              >
+                <img
+                  src={user.profilePic}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+                {/* {isOnline && (
+                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-10"></span>
+                )} */}
+              </div>
+              <div>
+                <p className="text-white">{user.fullName}</p>
+                {isOnline && <p className="text-xs text-green-400">Online</p>}
+              </div>
             </div>
-            <div>
-              <p className="text-white">{user.fullName}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );
