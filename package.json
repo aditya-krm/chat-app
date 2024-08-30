@@ -1,5 +1,8 @@
 {
   "name": "chatapp",
+  "Author": "Aditya Karmakar",
+  "github": "https://github.com/aditya-krm/chat-app",
+  "live": "https://chat-app-0b1m.onrender.com/",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
