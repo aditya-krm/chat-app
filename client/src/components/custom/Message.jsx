@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Button } from "../ui/button";
-import { Loader2, Phone } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
 
 const Message = ({ message, isOwnMessage, isDianaMessage }) => {
@@ -20,12 +20,6 @@ const Message = ({ message, isOwnMessage, isDianaMessage }) => {
       setTranslatedText(translation);
     }
   };
-
-  const handleCallClick = () => {
-    setIsCallModalOpen(true);
-    // Add your call functionality here
-  };
-
   return (
     <div
       className={`max-w-[80%] p-3 rounded-lg ${
@@ -59,17 +53,6 @@ const Message = ({ message, isOwnMessage, isDianaMessage }) => {
               "See translation"
             )}
           </Button>
-          {!isDianaMessage && !isOwnMessage && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-gray-400 hover:text-white"
-              onClick={handleCallClick}
-            >
-              <Phone className="w-3 h-3 mr-1" />
-              Call
-            </Button>
-          )}
         </div>
         <span className="text-xs text-gray-400">
           {format(new Date(message.createdAt), "p")}

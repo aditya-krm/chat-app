@@ -1,26 +1,23 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { Phone, Video } from "lucide-react";
+import { PhoneCall, Video } from "lucide-react";
 import { toast } from "sonner";
-import { useCallContext } from "@/context/CallContext";
 
-const CallButtons = ({ isOnline, receiverId }) => {
-  const { callUser } = useCallContext();
-
+const CallButtons = ({ isOnline, username }) => {
   const handleVoiceCall = () => {
     if (!isOnline) {
-      toast.error("User is offline");
+      toast.error(`${username} is offline`);
       return;
     }
-    callUser(receiverId, "audio");
+    toast.info("Voice call feature coming soon!");
   };
 
   const handleVideoCall = () => {
     if (!isOnline) {
-      toast.error("User is offline");
+      toast.error(`${username} is offline`);
       return;
     }
-    callUser(receiverId, "video");
+    toast.info("Video call feature coming soon!");
   };
 
   return (
@@ -29,19 +26,25 @@ const CallButtons = ({ isOnline, receiverId }) => {
         onClick={handleVoiceCall}
         variant="ghost"
         size="icon"
-        className="hover:bg-gray-800"
-        title="Voice Call"
+        className={`rounded-full hover:bg-gray-800 ${
+          !isOnline ? "opacity-50" : ""
+        }`}
+        disabled={!isOnline}
+        title={isOnline ? "Start voice call" : "User is offline"}
       >
-        <Phone className="h-5 w-5" />
+        <PhoneCall className="h-4 w-4 text-blue-400" />
       </Button>
       <Button
         onClick={handleVideoCall}
         variant="ghost"
         size="icon"
-        className="hover:bg-gray-800"
-        title="Video Call"
+        className={`rounded-full hover:bg-gray-800 ${
+          !isOnline ? "opacity-50" : ""
+        }`}
+        disabled={!isOnline}
+        title={isOnline ? "Start video call" : "User is offline"}
       >
-        <Video className="h-5 w-5" />
+        <Video className="h-4 w-4 text-green-400" />
       </Button>
     </div>
   );

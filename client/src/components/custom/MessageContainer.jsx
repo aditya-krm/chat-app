@@ -11,13 +11,14 @@ import useConversation from "@/store/useConversation";
 import { isAIAssistant } from "@/config/aiAssistants";
 import AISelector from "./AISelector";
 import useDianaChat from "@/hooks/useDianaChat";
+import CallButtons from "./CallButtons";
 
 function MessageContainer({ conversation, onBack }) {
   const [message, setMessage] = useState("");
   const { sendMessage: sendUserMessage } = useSendMessage();
   const { selectedConversation, messages: dbMessages } = useConversation();
   const { loading } = useGetMessages();
-  const { socket } = useSocketContext();
+  const { socket, onlineUsers } = useSocketContext();
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [currentModel, setCurrentModel] = useState("gemini");
@@ -30,6 +31,30 @@ function MessageContainer({ conversation, onBack }) {
   } = useDianaChat();
 
   const currentUserId = JSON.parse(localStorage.getItem("authUser"))._id;
+
+  // Listen for online users
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("getOnlineUsers", (users) => {
+      setOnlineUsers(new Set(users));
+    });
+
+    return () => socket.off("getOnlineUsers");
+  }, [socket]);
+
+  // Get selected user details
+  const selectedUser = conversation.find(
+    (conv) => conv._id === selectedConversation
+  ) || {
+    _id: "diana_bot",
+    fullName: "Diana AI Assistant",
+    isBot: true,
+  };
+
+  const isUserOnline = isAIAssistant(selectedConversation)
+    ? true
+    : onlineUsers.includes(selectedConversation);
 
   useEffect(() => {
     // Clear AI chat when switching conversations
@@ -83,21 +108,38 @@ function MessageContainer({ conversation, onBack }) {
 
   return (
     <Card className="h-full w-full flex flex-col">
-      <div className="p-3 border-b flex items-center gap-3">
-        <Button onClick={onBack} size="icon" variant="ghost">
-          <ArrowLeft />
-        </Button>
-        <div className="flex items-center gap-2">
-          <span className="font-bold">
-            {isAIAssistant(selectedConversation)
-              ? "Diana AI Assistant"
-              : conversation.find((conv) => conv._id === selectedConversation)
-                  ?.fullName}
-          </span>
+      <div className="p-3 border-b flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button onClick={onBack} size="icon" variant="ghost">
+            <ArrowLeft />
+          </Button>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-bold">{selectedUser?.fullName}</span>
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  isUserOnline ? "bg-green-500" : "bg-gray-500"
+                }`}
+                title={isUserOnline ? "Online" : "Offline"}
+              />
+            </div>
+            {!isAIAssistant(selectedConversation) && (
+              <span className="text-xs text-gray-400">
+                {isUserOnline ? "Online" : "Offline"}
+              </span>
+            )}
+          </div>
         </div>
+
+        {!isAIAssistant(selectedConversation) && (
+          <CallButtons
+            isOnline={isUserOnline}
+            username={selectedUser?.fullName}
+          />
+        )}
       </div>
 
-      <CardContent className="flex-1 flex flex-col gap-4 overflow-y-auto p-4">
+      <CardContent className="flex-1 flex flex-col gap-4 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
         {loading && !isAIAssistant(selectedConversation) ? (
           <div className="text-center">Loading messages...</div>
         ) : displayMessages.length > 0 ? (
@@ -141,7 +183,7 @@ function MessageContainer({ conversation, onBack }) {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            className="flex-1 max-h-32 min-h-10 bg-transparent border-none focus-visible:ring-0 resize-none p-2"
+            className="flex-1 max-h-32 min-h-10 bg-transparent border-none focus-visible:ring-0 resize-none p-2 input-scrollbar"
             rows={1}
           />
           <Button
