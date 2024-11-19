@@ -17,7 +17,7 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://chat-app-0b1m.onrender.com"],
+    origin: ["http://localhost:5173", "https://chat-app-omega-lac.vercel.app"],
     credentials: true,
     methods: ["GET", "POST"],
   })
