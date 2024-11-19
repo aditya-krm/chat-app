@@ -28,13 +28,7 @@ export const sendMessage = async (req, res) => {
       conversation.messages.push(newMessage._id);
     }
 
-    await Promise.all([newMessage.save(), conversation.save()]); // Save message and conversation parallelly
-
-    //Socket.io for real-time chat
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
+    await Promise.all([newMessage.save(), conversation.save()]);
 
     res.status(201).json(newMessage);
   } catch (error) {

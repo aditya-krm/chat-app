@@ -88,14 +88,23 @@ function MessageContainer({ conversation, onBack }) {
       await sendDianaMessage(currentMsg, currentModel);
     } else {
       try {
+        // Create a new message object
+        const newMessage = {
+          _id: Date.now(), // Temporary ID for immediate display
+          senderId: currentUserId,
+          receiverId: selectedConversation,
+          message: currentMsg,
+          createdAt: new Date().toISOString(),
+        };
+
+        // Emit the message via socket first for real-time delivery
+        socket?.emit("sendMessage", newMessage);
+
+        // Then send to server for persistence
         const response = await sendUserMessage(currentMsg);
-        if (response) {
-          socket?.emit("sendMessage", {
-            receiverId: selectedConversation,
-            message: currentMsg,
-            senderId: currentUserId,
-            createdAt: new Date().toISOString(),
-          });
+        if (!response) {
+          console.error("Failed to send message");
+          // Optionally show an error toast here
         }
       } catch (error) {
         console.error("Error sending message:", error);
@@ -114,6 +123,25 @@ function MessageContainer({ conversation, onBack }) {
   const displayMessages = isAIAssistant(selectedConversation)
     ? chatMessages
     : dbMessages || [];
+
+  // Add socket event listener for receiving messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (message) => {
+      if (message.senderId === selectedConversation) {
+        useConversation
+          .getState()
+          .setMessages([...useConversation.getState().messages, message]);
+      }
+    };
+
+    socket.on("newMessage", handleNewMessage);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedConversation]);
 
   return (
     <Card className="h-full w-full flex flex-col">
