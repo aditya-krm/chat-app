@@ -2,7 +2,6 @@ import React from "react";
 import { useCallContext } from "@/context/CallContext";
 import { Button } from "../ui/button";
 import { Phone, PhoneOff, Video, VideoOff } from "lucide-react";
-
 const CallModal = () => {
   const {
     call,
@@ -15,9 +14,7 @@ const CallModal = () => {
     answerCall,
     leaveCall,
   } = useCallContext();
-
   if (!isReceivingCall && !callAccepted) return null;
-
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
       <div className="bg-gray-900 p-4 rounded-lg w-full max-w-4xl">
@@ -33,7 +30,6 @@ const CallModal = () => {
             />
             <p className="absolute bottom-2 left-2 text-white">My Video</p>
           </div>
-
           {/* User's Video */}
           {callAccepted && !callEnded && (
             <div className="relative">
@@ -49,7 +45,6 @@ const CallModal = () => {
             </div>
           )}
         </div>
-
         <div className="flex justify-center gap-4 mt-4">
           {isReceivingCall && !callAccepted ? (
             <>
@@ -81,5 +76,4 @@ const CallModal = () => {
     </div>
   );
 };
-
 export default CallModal;

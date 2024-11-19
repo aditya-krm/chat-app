@@ -68,6 +68,15 @@ function MessageContainer({ conversation, onBack }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, dbMessages]);
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "0px";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      // Limit max height to ~4-5 lines (adjust 160px as needed)
+      textareaRef.current.style.height = `${Math.min(scrollHeight, 160)}px`;
+    }
+  }, [message]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -183,8 +192,11 @@ function MessageContainer({ conversation, onBack }) {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            className="flex-1 max-h-32 min-h-10 bg-transparent border-none focus-visible:ring-0 resize-none p-2 input-scrollbar"
-            rows={1}
+            className="flex-1 bg-transparent border-none focus-visible:ring-0 resize-none p-2 input-scrollbar overflow-y-auto"
+            style={{
+              maxHeight: "160px", // Matches the limit in useEffect
+              minHeight: "40px", // Height for single line
+            }}
           />
           <Button
             type="submit"

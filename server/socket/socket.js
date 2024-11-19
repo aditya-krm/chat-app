@@ -5,27 +5,35 @@ import express from "express";
 const app = express();
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://chat-app-0b1m.onrender.com"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
-
-const userSocketMap = {}; // userId: socketId
 
 export const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
+const userSocketMap = {};
+
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
-
   const userId = socket.handshake.query.userId;
-  if (userId != "undefined") userSocketMap[userId] = socket.id;
 
-  // Send online users to all connected users
+  if (userId !== undefined) userSocketMap[userId] = socket.id;
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  socket.on("sendMessage", (message) => {
+    console.log("Message received:", message);
+    const receiverSocketId = getReceiverSocketId(message.receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", message);
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);
