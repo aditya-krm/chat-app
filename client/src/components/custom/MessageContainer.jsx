@@ -9,13 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, Phone, Video } from "lucide-react";
 import useConversation from "@/store/useConversation";
 import useSendMessage from "@/hooks/useSendMessage";
 import useGetMessages from "@/hooks/useGetMessages";
 import { format } from "date-fns";
 import useListenMessages from "@/hooks/useListenMessages";
 import { useSocketContext } from "@/context/SocketContext"; // Import the context
+import { useCallContext } from "@/context/CallContext";
 
 function MessageContainer({ conversation, onBack }) {
   const [message, setMessage] = useState("");
@@ -23,6 +24,7 @@ function MessageContainer({ conversation, onBack }) {
   const { selectedConversation } = useConversation();
   const { messages, loading } = useGetMessages();
   const { onlineUsers, socket } = useSocketContext(); // Access the online users and socket
+  const { callUser } = useCallContext();
 
   const currentUserId = JSON.parse(localStorage.getItem("authUser"))._id;
   const selectedUser = conversation.find(
@@ -88,6 +90,22 @@ function MessageContainer({ conversation, onBack }) {
           <CardDescription>
             {isOnline ? "Online" : "Offline"} {/* Display online status */}
           </CardDescription>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => callUser(selectedConversation, "voice")}
+          >
+            <Phone className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => callUser(selectedConversation, "video")}
+          >
+            <Video className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="h-[84%] flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
