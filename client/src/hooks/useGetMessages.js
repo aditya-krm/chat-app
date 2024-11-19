@@ -10,22 +10,33 @@ const useGetMessages = () => {
     const getMessages = async () => {
       setLoading(true);
       try {
+        if (selectedConversation === "diana_bot") {
+          setMessages([]);
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(`/api/messages/${selectedConversation}`);
         const data = await res.json();
 
         if (data.error) throw new Error(data.error);
-        setMessages(data.messages);
+        setMessages(data.messages || []);
       } catch (error) {
         toast.error(error.message);
+        setMessages([]);
       } finally {
         setLoading(false);
       }
     };
 
-    if (selectedConversation) getMessages();
+    if (selectedConversation) {
+      getMessages();
+    } else {
+      setMessages([]);
+    }
   }, [selectedConversation, setMessages]);
 
-  return { messages, loading };
+  return { messages: messages || [], loading };
 };
 
 export default useGetMessages;

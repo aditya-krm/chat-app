@@ -1,5 +1,8 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { SearchIcon, User } from "lucide-react";
+import { useSocketContext } from "@/context/SocketContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,9 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { LogOut, SearchIcon, User } from "lucide-react";
-import { useSocketContext } from "@/context/SocketContext";
+import { LogOut } from "lucide-react";
+import { AI_ASSISTANTS } from "@/config/aiAssistants";
 
 const ConversationList = ({
   conversation,
@@ -20,6 +22,9 @@ const ConversationList = ({
   logout,
 }) => {
   const { onlineUsers } = useSocketContext();
+
+  // Add all AI assistants to the beginning of the conversation list
+  const allConversations = [...Object.values(AI_ASSISTANTS), ...conversation];
 
   return (
     <Card className="h-full">
@@ -45,12 +50,12 @@ const ConversationList = ({
         </DropdownMenu>
       </CardHeader>
       <CardContent className="h-[90%] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
-        {conversation.map((user, index) => {
-          const isOnline = onlineUsers.includes(user._id);
+        {allConversations.map((user, index) => {
+          const isOnline = user.isBot || onlineUsers.includes(user._id);
 
           return (
             <div
-              key={index}
+              key={user._id}
               onClick={() => setSelectedConversation(user._id)}
               className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer ${
                 selectedConversation === user._id
@@ -68,13 +73,16 @@ const ConversationList = ({
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
-                {/* {isOnline && (
-                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-10"></span>
-                )} */}
+                {isOnline && (
+                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+                )}
               </div>
               <div>
                 <p className="text-white">{user.fullName}</p>
                 {isOnline && <p className="text-xs text-green-400">Online</p>}
+                {user.isBot && (
+                  <p className="text-xs text-indigo-400">AI Assistant</p>
+                )}
               </div>
             </div>
           );
