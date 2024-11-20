@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SearchIcon, User } from "lucide-react";
@@ -22,14 +22,25 @@ const ConversationList = ({
   logout,
 }) => {
   const { onlineUsers } = useSocketContext();
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Add all AI assistants to the beginning of the conversation list
   const allConversations = [...Object.values(AI_ASSISTANTS), ...conversation];
 
+  // Filter conversations based on search term
+  const filteredConversations = allConversations.filter((user) =>
+    user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Card className="h-full">
       <CardHeader className="h-[10%] relative">
-        <Input className="pl-8 w-[90%]" placeholder="Search User" />
+        <Input
+          className="pl-8 w-[90%]"
+          placeholder="Search User"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <SearchIcon className="cursor-pointer absolute opacity-50 pl-1" />
         <DropdownMenu>
           <DropdownMenuTrigger className="w-8 h-8 rounded-full border-2 border-cyan-400/50 absolute right-2 top-5 flex items-center justify-center">
@@ -50,7 +61,7 @@ const ConversationList = ({
         </DropdownMenu>
       </CardHeader>
       <CardContent className="h-[90%] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
-        {allConversations.map((user, index) => {
+        {filteredConversations.map((user, index) => {
           const isOnline = user.isBot || onlineUsers.includes(user._id);
 
           return (
