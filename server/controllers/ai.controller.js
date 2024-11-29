@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const GENERATIVE_API_KEY = process.env.GENERATIVE_API_KEY;
-console.log("GENERATIVE_API_KEY:", GENERATIVE_API_KEY);
+// console.log("GENERATIVE_API_KEY:", GENERATIVE_API_KEY);
 
 export const getAIResponse = async (req, res) => {
   try {
@@ -66,27 +66,37 @@ const handleGeminiResponse = async (message) => {
 
 const handleGPTResponse = async (message) => {
   try {
-    const url = "https://chat-gpt26.p.rapidapi.com/";
+    // Define the API endpoint
+    const url = "https://chatgpt-42.p.rapidapi.com/gpt4";
+
+    // Make a POST request to the API
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-RapidAPI-Key": process.env.RAPID_API_KEY,
-        "X-RapidAPI-Host": "chat-gpt26.p.rapidapi.com",
+        "X-RapidAPI-Key": process.env.RAPID_API_KEY, // Secure API key via environment variable
+        "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com",
       },
       body: JSON.stringify({
-        messages: [{ role: "user", content: message }],
+        messages: [
+          { role: "user", content: message }, // Dynamically passing the user's message
+        ],
+        web_access: false, // Set to false for this use case
       }),
     });
 
+    // Parse the response
     const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error.message);
+
+    // Check for success status
+    if (!data.status) {
+      throw new Error("API response indicates failure");
     }
 
-    return data.choices[0].message.content;
+    // Return the result content
+    return data.result;
   } catch (error) {
-    console.error("GPT API error:", error);
-    throw error;
+    console.error("GPT API error:", error.message || error);
+    throw error; // Re-throw error for further handling
   }
 };

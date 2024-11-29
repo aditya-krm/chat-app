@@ -4,6 +4,7 @@ import useGetConversation from "@/hooks/usegetConversation";
 import useConversation from "@/store/useConversation";
 import ConversationList from "@/components/custom/ConversationList";
 import MessageContainer from "@/components/custom/MessageContainer";
+import NoChat from "@/components/custom/NoChat";
 
 function Home() {
   const { loading, conversation } = useGetConversation();
@@ -46,12 +47,16 @@ function Home() {
           selectedConversation ? "block" : "hidden lg:block"
         }`}
       >
-        <MessageContainer
-          conversation={conversation}
-          selectedConversation={selectedConversation}
-          messages={messages}
-          onBack={() => setSelectedConversation(null)}
-        />
+        {selectedConversation ? (
+          <MessageContainer
+            conversation={conversation}
+            selectedConversation={selectedConversation}
+            messages={messages}
+            onBack={() => setSelectedConversation(null)}
+          />
+        ) : (
+          <NoChat />
+        )}
       </div>
     </div>
   );

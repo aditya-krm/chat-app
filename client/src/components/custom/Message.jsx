@@ -22,7 +22,7 @@ const Message = ({ message, isOwnMessage, isDianaMessage }) => {
   };
   return (
     <div
-      className={`max-w-[80%] p-3 rounded-lg ${
+      className={`max-w-[80%] p-3 rounded-lg break-wordse ${
         isOwnMessage
           ? "bg-blue-500/40 self-end"
           : isDianaMessage
