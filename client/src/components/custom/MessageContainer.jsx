@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import EmojiPicker from "emoji-picker-react";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import Message from "./Message";
-import { ArrowLeft, Send } from "lucide-react";
+import FloatingToolbar from "./FloatingToolbar";
+import { ArrowLeft, Send, Smile } from "lucide-react";
 import useSendMessage from "@/hooks/useSendMessage";
 import useGetMessages from "@/hooks/useGetMessages";
 import { useSocketContext } from "@/context/SocketContext";
@@ -22,6 +24,8 @@ function MessageContainer({ conversation, onBack }) {
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [currentModel, setCurrentModel] = useState("gemini");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef(null);
 
   const {
     sendMessage: sendDianaMessage,
@@ -76,6 +80,22 @@ function MessageContainer({ conversation, onBack }) {
       textareaRef.current.style.height = `${Math.min(scrollHeight, 160)}px`;
     }
   }, [message]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,8 +163,19 @@ function MessageContainer({ conversation, onBack }) {
     };
   }, [socket, selectedConversation]);
 
+  const onEmojiClick = (emojiObject) => {
+    setMessage((prevMessage) => prevMessage + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
   return (
-    <Card className="h-full w-full flex flex-col">
+    <Card className="h-full w-full flex flex-col relative">
+      <FloatingToolbar
+        textareaRef={textareaRef}
+        message={message}
+        setMessage={setMessage}
+      />
+
       <div className="p-3 border-b flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button onClick={onBack} size="icon" variant="ghost">
@@ -176,7 +207,7 @@ function MessageContainer({ conversation, onBack }) {
         )}
       </div>
 
-      <CardContent className="flex-1 flex flex-col gap-4 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
+      <CardContent className="flex-1 flex flex-col gap-4 overflow-y-auto p-4 custom-scrollbar">
         {loading && !isAIAssistant(selectedConversation) ? (
           <div className="text-center">Loading messages...</div>
         ) : displayMessages.length > 0 ? (
@@ -206,7 +237,7 @@ function MessageContainer({ conversation, onBack }) {
       <CardFooter className="p-2 border-t">
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-2 w-full bg-gray-900 rounded-lg p-2"
+          className="flex items-center gap-2 w-full bg-gray-900 rounded-lg p-2 relative"
         >
           {isAIAssistant(selectedConversation) && (
             <AISelector
@@ -214,16 +245,39 @@ function MessageContainer({ conversation, onBack }) {
               onModelSelect={setCurrentModel}
             />
           )}
+          <div className="relative">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            >
+              <Smile className="h-5 w-5" />
+            </Button>
+            {showEmojiPicker && (
+              <div
+                ref={emojiPickerRef}
+                className="absolute bottom-12 left-0 z-50"
+              >
+                <EmojiPicker
+                  onEmojiClick={onEmojiClick}
+                  theme="auto"
+                  emojiStyle="native"
+                />
+              </div>
+            )}
+          </div>
           <Textarea
             ref={textareaRef}
             placeholder="Type a message..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-            className="flex-1 bg-transparent border-none focus-visible:ring-0 resize-none p-2 input-scrollbar overflow-y-auto"
+            className="flex-1 bg-transparent border-none focus-visible:ring-0 resize-none p-2 custom-scrollbar overflow-y-auto"
             style={{
-              maxHeight: "160px", // Matches the limit in useEffect
-              minHeight: "40px", // Height for single line
+              maxHeight: "160px",
+              minHeight: "40px",
             }}
           />
           <Button

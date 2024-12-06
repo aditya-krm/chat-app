@@ -60,7 +60,7 @@ const ConversationList = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="h-[90%] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-800">
+      <CardContent className="h-[90%] overflow-y-auto custom-scrollbar">
         {filteredConversations.map((user, index) => {
           const isOnline = user.isBot || onlineUsers.includes(user._id);
 

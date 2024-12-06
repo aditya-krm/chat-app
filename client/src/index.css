@@ -96,20 +96,117 @@
   }
 }
 
-/* input scroolbar style */
-.input-scrollbar::-webkit-scrollbar {
-  width: 8px;
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.input-scrollbar::-webkit-scrollbar-track {
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
-}
-
-.input-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.3);
   border-radius: 4px;
 }
 
-.input-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(156, 163, 175, 0.5);
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.4);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.6);
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+
+/* Hide scrollbar when not hovering */
+.custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.2);
+}
+
+/* Update your markdown preview styles */
+.markdown-preview {
+  color: white;
+  line-height: 1.5;
+  font-size: 1rem;
+  letter-spacing: normal;
+  font-family: inherit;
+}
+
+.markdown-preview .markdown-syntax {
+  opacity: 0.4;
+  color: #888;
+  font-family: monospace;
+  font-size: 0.9em;
+  user-select: none;
+}
+
+.markdown-preview strong {
+  font-weight: 600;
+}
+
+.markdown-preview em {
+  font-style: italic;
+}
+
+.markdown-preview u {
+  text-decoration: underline;
+}
+
+.markdown-preview del {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.markdown-preview code {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.markdown-preview blockquote {
+  display: inline;
+  color: #a0aec0;
+  padding-left: 4px;
+  border-left: 2px solid #4a5568;
+  margin-left: 2px;
+}
+
+/* Add spacing between lines */
+.markdown-preview br {
+  margin-top: 0.5em;
+}
+
+/* Improve selection visibility */
+.markdown-preview::selection,
+.markdown-preview *::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Add these new styles */
+.markdown-preview::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  caret-color: white;
+}
+
+/* Improve text alignment */
+.markdown-preview,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: normal;
+  padding: 0.5rem;
 }

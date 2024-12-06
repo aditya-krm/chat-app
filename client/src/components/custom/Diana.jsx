@@ -53,7 +53,7 @@ const Diana = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
-        <div className="h-[200px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-blue-900 scrollbar-track-gray-800 pr-2">
+        <div className="h-[200px] overflow-y-auto space-y-4 custom-scrollbar pr-2">
           {conversation.map((msg, index) => (
             <div
               key={index}

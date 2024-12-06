@@ -3,12 +3,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const GENERATIVE_API_KEY = process.env.GENERATIVE_API_KEY;
-// console.log("GENERATIVE_API_KEY:", GENERATIVE_API_KEY);
 
 export const getAIResponse = async (req, res) => {
   try {
     const { message, model } = req.body;
-    console.log("AI request:", message, model);
+    // console.log("AI request:", message, model);
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
