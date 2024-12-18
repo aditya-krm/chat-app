@@ -36,7 +36,7 @@ io.on("connection", (socket) => {
     const receiverSocketId = getReceiverSocketId(message.receiverId);
     if (receiverSocketId) {
       // Send the message directly to the receiver if they're online
-      io.to(receiverSocketId).emit("newMessage", message);
+      io.to(receiverSocketId).broadcast("newMessage", message);
     }
   });
 

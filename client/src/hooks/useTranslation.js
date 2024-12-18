@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.PROD
   ? "/api"
-  : "http://localhost:3000/api";
+  : "http://localhost:3001/api";
 
 const useTranslation = () => {
   const [isTranslating, setIsTranslating] = useState(false);

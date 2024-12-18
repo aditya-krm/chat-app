@@ -153,13 +153,80 @@ function MessageContainer({ conversation, onBack }) {
         useConversation
           .getState()
           .setMessages([...useConversation.getState().messages, message]);
+
+        // Automatically mark message as delivered when received
+        socket.emit("messageStatus", {
+          messageId: message._id,
+          status: "delivered",
+        });
       }
     };
 
+    const handleMessageDeleted = ({ messageId }) => {
+      useConversation
+        .getState()
+        .setMessages(
+          useConversation
+            .getState()
+            .messages.filter((msg) => msg._id !== messageId)
+        );
+    };
+
+    const handleMessageUpdated = ({ messageId, message }) => {
+      useConversation
+        .getState()
+        .setMessages(
+          useConversation
+            .getState()
+            .messages.map((msg) =>
+              msg._id === messageId ? { ...msg, message, isEdited: true } : msg
+            )
+        );
+    };
+
+    const handleMessageStatus = ({ messageId, status }) => {
+      useConversation
+        .getState()
+        .setMessages(
+          useConversation
+            .getState()
+            .messages.map((msg) =>
+              msg._id === messageId ? { ...msg, status } : msg
+            )
+        );
+    };
+
     socket.on("newMessage", handleNewMessage);
+    socket.on("messageDeleted", handleMessageDeleted);
+    socket.on("messageUpdated", handleMessageUpdated);
+    socket.on("messageStatus", handleMessageStatus);
+
+    // Mark messages as seen when conversation is opened
+    const markMessagesAsSeen = () => {
+      const unseenMessages = useConversation
+        .getState()
+        .messages.filter(
+          (msg) =>
+            msg.senderId === selectedConversation && msg.status !== "seen"
+        );
+
+      unseenMessages.forEach((msg) => {
+        socket.emit("messageStatus", {
+          messageId: msg._id,
+          status: "seen",
+        });
+      });
+    };
+
+    if (selectedConversation) {
+      markMessagesAsSeen();
+    }
 
     return () => {
       socket.off("newMessage", handleNewMessage);
+      socket.off("messageDeleted", handleMessageDeleted);
+      socket.off("messageUpdated", handleMessageUpdated);
+      socket.off("messageStatus", handleMessageStatus);
     };
   }, [socket, selectedConversation]);
 
